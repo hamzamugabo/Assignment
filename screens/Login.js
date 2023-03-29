@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
@@ -9,13 +15,22 @@ const LoginScreen = ({navigation}) => {
 
   const handleLogin = async () => {
     try {
-      const user = await AsyncStorage.getItem(username);
+      const user = await AsyncStorage.getItem('user');
+      const userDate = JSON.parse(user);
       if (user) {
-        const {password: storedPassword} = JSON.parse(user);
-        if (password === storedPassword) {
+        // const {password: storedPassword} = userDate?.password;
+        if (
+          password === userDate?.password &&
+          username === userDate?.username
+        ) {
+          setUsername('');
+          setPassword('');
+          setError('');
           navigation.navigate('Home');
         } else {
-          setError('Incorrect password');
+          console.log(password);
+          console.log(username);
+          setError('Incorrect password or username');
         }
       } else {
         setError('User not found');
@@ -36,18 +51,37 @@ const LoginScreen = ({navigation}) => {
       <TextInput
         style={styles.input}
         placeholder="Username"
-        onChangeText={setUsername}
+        onChangeText={text => {
+          setUsername(text);
+          setError('');
+        }}
         value={username}
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
         secureTextEntry={true}
-        onChangeText={setPassword}
+        onChangeText={text => {
+          setPassword(text);
+          setError('');
+        }}
         value={password}
       />
-      <Button title="Login" onPress={handleLogin} />
-      <Button title="Register" onPress={handleRegister} />
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          flexDirection: 'column',
+          width: '100%',
+        }}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRegister}>
+          <Text style={{color: '#333'}}>Dont have an account? Register</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -67,13 +101,25 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
+    marginBottom: 20,
+  },
+  button: {
+    width: '80%',
+    height: 40,
+    backgroundColor: '#333',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   error: {
     color: 'red',
     marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
   },
 });
 

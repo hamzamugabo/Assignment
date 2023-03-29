@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RegisterScreen = ({navigation}) => {
@@ -20,13 +27,14 @@ const RegisterScreen = ({navigation}) => {
     }
 
     try {
-      const user = await AsyncStorage.getItem(username);
-      if (user) {
+      const user = await AsyncStorage.getItem('user');
+      const userDate = JSON.parse(user);
+      if (userDate?.username === username) {
         setError('User already exists');
         return;
       }
       const newUser = {username, password};
-      await AsyncStorage.setItem(username, JSON.stringify(newUser));
+      await AsyncStorage.setItem('user', JSON.stringify(newUser));
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
@@ -61,8 +69,21 @@ const RegisterScreen = ({navigation}) => {
         onChangeText={setConfirmPassword}
         value={confirmPassword}
       />
-      <Button title="Register" onPress={handleRegister} />
-      <Button title="Login" onPress={handleLogin} />
+
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          flexDirection: 'column',
+          width: '100%',
+        }}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleLogin}>
+          <Text style={{color: '#333'}}>Already have an account? Login</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -82,8 +103,20 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: '#fff',
+  },
+  button: {
+    width: '80%',
+    height: 40,
+    backgroundColor: '#333',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   error: {
