@@ -183,12 +183,12 @@ const RegistrationForm = () => {
                   marginVertical: 10,
                 }}>
                 <TouchableOpacity style={styles.button} onPress={takePhoto}>
-                  <Text>Take Photo</Text>
+                  <Text style={{color:'white'}}>Take Photo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={selectFromLibrary}>
-                  <Text>Select from Library</Text>
+                  <Text style={{color:'white'}}>Select from Library</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -236,7 +236,7 @@ const styles = {
     height: 200,
   },
   button: {
-   
+   width:'40%',
     height: 40,
     backgroundColor: '#333',
     borderRadius: 10,
