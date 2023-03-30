@@ -9,7 +9,7 @@ import {
 import MapView, {MapMarker, Polygon} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 
-const MapScreen = () => {
+const MapScreen = ({coords}) => {
   const [region, setRegion] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -35,32 +35,40 @@ const MapScreen = () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
+      ).then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the location');
+          Geolocation.getCurrentPosition(
+            position => {
+              const {latitude, longitude} = position.coords;
+              coords(position.coords);
+              setRegion({
+                latitude,
+                longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              });
+              setCoordinates([
+                {latitude: latitude + 0.001, longitude: longitude - 0.001},
+                {latitude: latitude + 0.001, longitude: longitude + 0.001},
+                {latitude: latitude - 0.001, longitude: longitude + 0.001},
+                {latitude: latitude - 0.001, longitude: longitude - 0.001},
+              ]);
+            },
+            error => {
+              console.log(error.code, error.message);
+            },
+            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+          );
+        } else {
+          console.log('Location permission denied');
+        }
+      });
     }
   }
   useEffect(() => {
     requestPermissions();
-    Geolocation.getCurrentPosition(
-      position => {
-        const {latitude, longitude} = position.coords;
-        setRegion({
-          latitude,
-          longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
-        setCoordinates([
-          {latitude: latitude + 0.001, longitude: longitude - 0.001},
-          {latitude: latitude + 0.001, longitude: longitude + 0.001},
-          {latitude: latitude - 0.001, longitude: longitude + 0.001},
-          {latitude: latitude - 0.001, longitude: longitude - 0.001},
-        ]);
-      },
-      error => {
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
-    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

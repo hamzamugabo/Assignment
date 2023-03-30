@@ -40,12 +40,18 @@ const RegistrationForm = () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
+      ).then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the location');
+          getLocation();
+        } else {
+          console.log('Location permission denied');
+        }
+      });
     }
   }
 
   const getLocation = () => {
-    requestPermissions();
     const options = {
       enableHighAccuracy: true,
       timeout: 20000,
@@ -171,7 +177,7 @@ const RegistrationForm = () => {
   };
 
   useEffect(() => {
-    getLocation();
+    requestPermissions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
@@ -311,7 +317,11 @@ const RegistrationForm = () => {
                   Respondent compound shape and size
                 </Text>
 
-                <MapScreen />
+                <MapScreen
+                  coords={coords => {
+                    setCoordinates(coords);
+                  }}
+                />
                 {/* {errors.compoundShape && <Text>{errors.compoundShape}</Text>} */}
               </View>
               {/* )}
